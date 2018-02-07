@@ -1,3 +1,5 @@
+#include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
@@ -28,6 +30,15 @@ int main() {
 
     char c;
     /* Read byte(s) from stdin into c, until read() returns 0 (EOF) or q key is pressed */
-    while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q');
+    while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q') {
+        if(iscntrl(c)) {
+            /* Print only ASCII code of control chars */
+            printf("%d\n", c);
+        } else {
+            /* Print ASCII code and character */
+            printf("%d ('%c')\n", c, c);
+        }
+    }
+
     return 0;
 }
