@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
@@ -7,14 +8,21 @@
 /* Original copy of terminal attributes */
 struct termios orig_termios;
 
+void die(const char *s) {
+    /* Print error and exit */
+    perror(s);
+    exit(1);
+}
+
 void disableRawMode() {
     /* Restore original terminal attributes on exit */
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1)
+        die("tcsetattr");
 }
 
 void enableRawMode() {
     /* Read in terminal attributes */
-    tcgetattr(STDIN_FILENO, &orig_termios);
+    if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) die("tcgetaddr");
     /* Register restore function */
     atexit(disableRawMode);
 
@@ -32,16 +40,16 @@ void enableRawMode() {
     raw.c_cc[VTIME] = 1;
 
     /* Set new terminal attributes - discarding unread input w/ TCSAFLUSH */
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetaddr");
 }
 
 int main() {
     enableRawMode();
-    
+
     /* Read byte(s) from stdin into c */
     while (1) {
         char c = '\0';
-        read(STDIN_FILENO, &c, 1);
+        if(read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN) die("read");
         if(iscntrl(c)) {
             /* Print only ASCII code of control chars */
             printf("%d\r\n", c);
