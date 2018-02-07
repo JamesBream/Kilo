@@ -22,7 +22,7 @@ void enableRawMode() {
     /* Disable flow control */
     raw.c_iflag &= ~(IXON);
     /* Disable echo, SIGINT/SIGSTP & canonical mode */ 
-    raw.c_lflag &= ~(ECHO | ICANON | ISIG);
+    raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
     /* Set new terminal attributes - discarding unread input w/ TCSAFLUSH */
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
