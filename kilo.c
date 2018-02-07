@@ -19,10 +19,12 @@ void enableRawMode() {
     atexit(disableRawMode);
 
     struct termios raw = orig_termios;
-    /* Disable flow control and CRNL */
-    raw.c_iflag &= ~(ICRNL | IXON);
+    /* Disable flow control, CRNL & misc legacy (BRKINT, INPCK, ISTRIP) */
+    raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
     /* Disable output processing */
     raw.c_oflag &= ~(OPOST);
+    /* Set char size to 8 bits-per-byte */
+    raw.c_cflag &= ~(CS8);
     /* Disable echo, SIGINT/SIGSTP & canonical mode */ 
     raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
     /* Set new terminal attributes - discarding unread input w/ TCSAFLUSH */
