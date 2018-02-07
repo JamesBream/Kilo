@@ -21,6 +21,8 @@ void enableRawMode() {
     struct termios raw = orig_termios;
     /* Disable flow control and CRNL */
     raw.c_iflag &= ~(ICRNL | IXON);
+    /* Disable output processing */
+    raw.c_oflag &= ~(OPOST);
     /* Disable echo, SIGINT/SIGSTP & canonical mode */ 
     raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
     /* Set new terminal attributes - discarding unread input w/ TCSAFLUSH */
@@ -35,10 +37,10 @@ int main() {
     while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q') {
         if(iscntrl(c)) {
             /* Print only ASCII code of control chars */
-            printf("%d\n", c);
+            printf("%d\r\n", c);
         } else {
             /* Print ASCII code and character */
-            printf("%d ('%c')\n", c, c);
+            printf("%d ('%c')\r\n", c, c);
         }
     }
 
