@@ -19,8 +19,10 @@ void enableRawMode() {
     atexit(disableRawMode);
 
     struct termios raw = orig_termios;
-    /* Disable echo & canonical mode - bit flip (╯°□°）╯︵ ┻━┻ */ 
-    raw.c_lflag &= ~(ECHO | ICANON);
+    /* Disable flow control */
+    raw.c_iflag &= ~(IXON);
+    /* Disable echo, SIGINT/SIGSTP & canonical mode */ 
+    raw.c_lflag &= ~(ECHO | ICANON | ISIG);
     /* Set new terminal attributes - discarding unread input w/ TCSAFLUSH */
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
