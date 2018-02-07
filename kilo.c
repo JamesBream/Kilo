@@ -19,8 +19,8 @@ void enableRawMode() {
     atexit(disableRawMode);
 
     struct termios raw = orig_termios;
-    /* Disable flow control */
-    raw.c_iflag &= ~(IXON);
+    /* Disable flow control and CRNL */
+    raw.c_iflag &= ~(ICRNL | IXON);
     /* Disable echo, SIGINT/SIGSTP & canonical mode */ 
     raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
     /* Set new terminal attributes - discarding unread input w/ TCSAFLUSH */
