@@ -17,9 +17,9 @@ void enableRawMode() {
     atexit(disableRawMode);
 
     struct termios raw = orig_termios;
-    /* Disable echo on copy of attributes struct - bit flip (╯°□°）╯︵ ┻━┻ */ 
-    raw.c_lflag &= ~(ECHO);
-    /* Set new terminal attributes */
+    /* Disable echo & canonical mode - bit flip (╯°□°）╯︵ ┻━┻ */ 
+    raw.c_lflag &= ~(ECHO | ICANON);
+    /* Set new terminal attributes - discarding unread input w/ TCSAFLUSH */
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
