@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -14,6 +15,8 @@
 /*** Data ***/
 
 struct editorConfig {
+    int screenrows;
+    int screencols;
     /* Original copy of terminal attributes */
     struct termios orig_termios;
 };
@@ -71,12 +74,25 @@ char editorReadKey() {
     return c;
 }
 
+int getWindowSize(int *rows, int *cols) {
+    struct winsize ws;
+
+    /* Get window size from ioctl, checking for 0 error */
+    if (ioctl(STDERR_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
+        return -1;
+    } else {
+        *cols = ws.ws_col;
+        *rows = ws.ws_row;
+        return 0;
+    }
+}
+
 /*** Output ***/
 
 void editorDrawRows() {
     int y;
     /* Loop to draw row tildes */
-    for (y = 0; y < 24; y++) {
+    for (y = 0; y < E.screenrows; y++) {
         write(STDOUT_FILENO, "~\r\n", 3);
     }
 }
@@ -109,8 +125,14 @@ void editorProcessKeypress() {
 
 /*** Init ***/
 
+void initEditor() {
+    /* Get window size and store in global config */
+    if (getWindowSize(&E.screenrows, &E.screencols) == -1) die("getWindowSize");
+}
+
 int main() {
     enableRawMode();
+    initEditor();
 
     /* Read byte(s) from stdin into c */
     while (1) {
