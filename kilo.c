@@ -1,3 +1,5 @@
+/*** Includes ***/
+
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
@@ -5,10 +7,16 @@
 #include <termios.h>
 #include <unistd.h>
 
+/*** Defines ***/
+
 #define CTRL_KEY(k) ((k) & 0x1f)
+
+/*** Data ***/
 
 /* Original copy of terminal attributes */
 struct termios orig_termios;
+
+/*** Terminal ***/
 
 void die(const char *s) {
     /* Print error and exit */
@@ -55,6 +63,8 @@ char editorReadKey() {
     return c;
 }
 
+/*** Input ***/
+
 void editorProcessKeypress() {
     char c = editorReadKey();
     /* Handle key */
@@ -64,6 +74,8 @@ void editorProcessKeypress() {
             break;
     }
 }
+
+/*** Init ***/
 
 int main() {
     enableRawMode();
