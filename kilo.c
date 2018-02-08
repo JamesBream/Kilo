@@ -158,14 +158,19 @@ void editorDrawRows(struct abuf *ab) {
 void editorRefreshScreen() {
     struct abuf ab = ABUF_INIT;
 
-    /* Use VT100 Erase in Display (2J) to clear screen */
+    /* Hide cursor to prevent flicker */
+    abAppend(&ab, "\x1b[?25l", 6);
+    /* VT100 Erase in Display (2J) to clear screen */
     abAppend(&ab, "\x1b[2J", 4);
     /* VT100  Reset Cursor Position */
     abAppend(&ab, "\x1b[H", 3);
     /* Draw rows to buffer */
     editorDrawRows(&ab);
 
+    /* Reset cursor location and show/hide status */
     abAppend(&ab, "\x1b[H", 3);
+    abAppend(&ab, "\x1b[?25h", 6);
+    
     /* Write buffer to screen then free its memory */
     write(STDOUT_FILENO, ab.b, ab.len);
     abFree(&ab);
