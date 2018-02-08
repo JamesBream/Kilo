@@ -45,22 +45,32 @@ void enableRawMode() {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetaddr");
 }
 
+char editorReadKey() {
+    int nread;
+    char c;
+    /* Read and return a single key press from stdin */
+    while ((nread = read(STDIN_FILENO, &c, 1)) != 1) {
+        if (nread == -1 && errno != EAGAIN) die("read");
+    }
+    return c;
+}
+
+void editorProcessKeypress() {
+    char c = editorReadKey();
+    /* Handle key */
+    switch (c) {
+        case CTRL_KEY('q'):
+            exit(0);
+            break;
+    }
+}
+
 int main() {
     enableRawMode();
 
     /* Read byte(s) from stdin into c */
     while (1) {
-        char c = '\0';
-        if(read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN) die("read");
-        if(iscntrl(c)) {
-            /* Print only ASCII code of control chars */
-            printf("%d\r\n", c);
-        } else {
-            /* Print ASCII code and character */
-            printf("%d ('%c')\r\n", c, c);
-        }
-        /* Quit on q */
-        if (c == CTRL_KEY('q')) break;
+        editorProcessKeypress();
     }
 
     return 0;
