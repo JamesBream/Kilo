@@ -19,6 +19,10 @@ struct termios orig_termios;
 /*** Terminal ***/
 
 void die(const char *s) {
+    /* Clean up terminal (clear & reposition) */
+    write(STDOUT_FILENO, "\x1b[2J", 4);
+    write(STDOUT_FILENO, "\x1b[H", 3);
+
     /* Print error and exit */
     perror(s);
     exit(1);
@@ -68,6 +72,8 @@ char editorReadKey() {
 void editorRefreshScreen() {
     /* Use VT100 Erase in Display (2J) to clear screen */
     write(STDOUT_FILENO, "\x1b[2J", 4);
+    /* VT100 Cursor Position */
+    write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
 /*** Input ***/
