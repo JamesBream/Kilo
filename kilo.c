@@ -63,6 +63,13 @@ char editorReadKey() {
     return c;
 }
 
+/*** Output ***/
+
+void editorRefreshScreen() {
+    /* Use VT100 Erase in Display (2J) to clear screen */
+    write(STDOUT_FILENO, "\x1b[2J", 4);
+}
+
 /*** Input ***/
 
 void editorProcessKeypress() {
@@ -82,6 +89,7 @@ int main() {
 
     /* Read byte(s) from stdin into c */
     while (1) {
+        editorRefreshScreen();
         editorProcessKeypress();
     }
 
