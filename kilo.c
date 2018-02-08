@@ -69,10 +69,22 @@ char editorReadKey() {
 
 /*** Output ***/
 
+void editorDrawRows() {
+    int y;
+    /* Loop to draw row tildes */
+    for (y = 0; y < 24; y++) {
+        write(STDOUT_FILENO, "~\r\n", 3);
+    }
+}
+
 void editorRefreshScreen() {
     /* Use VT100 Erase in Display (2J) to clear screen */
     write(STDOUT_FILENO, "\x1b[2J", 4);
     /* VT100 Cursor Position */
+    write(STDOUT_FILENO, "\x1b[H", 3);
+
+    editorDrawRows();
+
     write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
