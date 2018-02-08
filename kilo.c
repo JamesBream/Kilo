@@ -83,6 +83,9 @@ void editorProcessKeypress() {
     /* Handle key */
     switch (c) {
         case CTRL_KEY('q'):
+            /* Clear screen, reset cursor */
+            write(STDOUT_FILENO, "\x1b[2J", 4);
+            write(STDOUT_FILENO, "\x1b[H", 3);
             exit(0);
             break;
     }
