@@ -18,6 +18,7 @@
 /*** Data ***/
 
 struct editorConfig {
+    int cx, cy;
     int screenrows;
     int screencols;
     /* Original copy of terminal attributes */
@@ -187,8 +188,12 @@ void editorRefreshScreen() {
     /* Draw rows to buffer */
     editorDrawRows(&ab);
 
+    /* Set cursor to E.cx, E.cy */
+    char buf[32];
+    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1);
+    abAppend(&ab, buf, strlen(buf));
+
     /* Reset cursor location and show/hide status */
-    abAppend(&ab, "\x1b[H", 3);
     abAppend(&ab, "\x1b[?25h", 6);
 
     /* Write buffer to screen then free its memory */
@@ -197,6 +202,23 @@ void editorRefreshScreen() {
 }
 
 /*** Input ***/
+
+void editorMoveCursor(char key) {
+    switch (key) {
+        case 'a':
+            E.cx--;
+            break;
+        case 'd':
+            E.cx++;
+            break;
+        case 'w':
+            E.cy--;
+            break;
+        case 's':
+            E.cy++;
+            break;
+    }
+}
 
 void editorProcessKeypress() {
     char c = editorReadKey();
@@ -208,12 +230,22 @@ void editorProcessKeypress() {
             write(STDOUT_FILENO, "\x1b[H", 3);
             exit(0);
             break;
+        
+        case 'w':
+        case 's':
+        case 'a':
+        case 'd':
+            editorMoveCursor(c);
+            break; 
     }
 }
 
 /*** Init ***/
 
 void initEditor() {
+    E.cx = 0;
+    E.cy = 0;
+
     /* Get window size and store in global config */
     if (getWindowSize(&E.screenrows, &E.screencols) == -1) die("getWindowSize");
 }
