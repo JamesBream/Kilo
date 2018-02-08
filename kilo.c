@@ -13,8 +13,12 @@
 
 /*** Data ***/
 
-/* Original copy of terminal attributes */
-struct termios orig_termios;
+struct editorConfig {
+    /* Original copy of terminal attributes */
+    struct termios orig_termios;
+};
+
+struct editorConfig E;
 
 /*** Terminal ***/
 
@@ -30,17 +34,17 @@ void die(const char *s) {
 
 void disableRawMode() {
     /* Restore original terminal attributes on exit */
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1)
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_termios) == -1)
         die("tcsetattr");
 }
 
 void enableRawMode() {
     /* Read in terminal attributes */
-    if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) die("tcgetaddr");
+    if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1) die("tcgetaddr");
     /* Register restore function */
     atexit(disableRawMode);
 
-    struct termios raw = orig_termios;
+    struct termios raw = E.orig_termios;
     /* Disable flow control, CRNL & misc legacy (BRKINT, INPCK, ISTRIP) */
     raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
     /* Disable output processing */
